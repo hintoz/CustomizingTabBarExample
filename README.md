@@ -3,7 +3,7 @@
 
 Implemented an example of saving and loading the changed order of tabs in UITabBarController.
 
-<img width="35%" border=0.5 src="screen.png" alt="Screen" title="Screen"</img>
+![Screenshot](screen.png)
 
 ## Author
 
