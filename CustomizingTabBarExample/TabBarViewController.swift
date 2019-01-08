@@ -23,68 +23,46 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
     }
     
     func configureVtewControllers() {
-        let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
+        let storyBoard = UIStoryboard(name: "Main", bundle: nil)
+        var conrollers = [NavigationViewController]()
         
-        let n1 = storyBoard.instantiateViewController(withIdentifier: "navVC") as! NavigationViewController
-        let n2 = storyBoard.instantiateViewController(withIdentifier: "navVC") as! NavigationViewController
-        let n3 = storyBoard.instantiateViewController(withIdentifier: "navVC") as! NavigationViewController
-        let n4 = storyBoard.instantiateViewController(withIdentifier: "navVC") as! NavigationViewController
-        let n5 = storyBoard.instantiateViewController(withIdentifier: "navVC") as! NavigationViewController
-        let n6 = storyBoard.instantiateViewController(withIdentifier: "navVC") as! NavigationViewController
-        let n7 = storyBoard.instantiateViewController(withIdentifier: "navVC") as! NavigationViewController
-        let n8 = storyBoard.instantiateViewController(withIdentifier: "navVC") as! NavigationViewController
+        for index in 0..<TabBarItemTag.allCases.count {
+            let conroller = storyBoard.instantiateViewController(withIdentifier: "navVC") as! NavigationViewController
+            let item = TabBarItemTag.allCases[index]
+            conroller.viewControllers.first?.tabBarItem = UITabBarItem.init(title: item.title, image: UIImage(named: item.image), selectedImage: UIImage(named: item.selectedImage))
+            conrollers.append(conroller)
+        }
         
-        
-        n1.viewControllers.first?.tabBarItem = UITabBarItem.init(title: "Home", image: UIImage(named: "home"), selectedImage: UIImage(named: "home_1"))
-        n2.viewControllers.first?.tabBarItem = UITabBarItem.init(title: "Find", image: UIImage(named: "find"), selectedImage: UIImage(named: "find_1"))
-        n3.viewControllers.first?.tabBarItem = UITabBarItem.init(title: "Photo", image: UIImage(named: "photo"), selectedImage: UIImage(named: "photo_1"))
-        n4.viewControllers.first?.tabBarItem = UITabBarItem.init(title: "Favor", image: UIImage(named: "favor"), selectedImage: UIImage(named: "favor_1"))
-        n5.viewControllers.first?.tabBarItem = UITabBarItem.init(title: "Me", image: UIImage(named: "me"), selectedImage: UIImage(named: "me_1"))
-        n6.viewControllers.first?.tabBarItem = UITabBarItem.init(title: "Message", image: UIImage(named: "message"), selectedImage: UIImage(named: "message_1"))
-        n7.viewControllers.first?.tabBarItem = UITabBarItem.init(title: "Shop", image: UIImage(named: "shop"), selectedImage: UIImage(named: "shop_1"))
-        n8.viewControllers.first?.tabBarItem = UITabBarItem.init(title: "Cardboard", image: UIImage(named: "cardboard"), selectedImage: UIImage(named: "cardboard_1"))
-        
-        
-        self.viewControllers = [n1, n2, n3, n4, n5, n6, n7, n8]
+        self.viewControllers = conrollers
     }
     
     func setUpTabBarItemTags() {
-        var tag = 0
-        if let viewControllers = viewControllers {
-            for view in viewControllers {
-                view.tabBarItem.tag = tag
-                tag += 1
-            }
+        guard let viewControllers = viewControllers else { return }
+        for (index, view) in viewControllers.enumerated() {
+            view.tabBarItem.tag = index
         }
     }
     
     func getSavedTabBarItemsOrder() {
+        guard let initialViewControllers = viewControllers else { return }
+        guard let tabBarOrder = UserDefaults.standard.object(forKey: tabBarOrderKey) as? [Int] else { return }
         var newViewControllerOrder = [UIViewController]()
-        if let initialViewControllers = viewControllers {
-            if let tabBarOrder = UserDefaults.standard.object(forKey: tabBarOrderKey) as? [Int] {
-                for tag in tabBarOrder {
-                    newViewControllerOrder.append(initialViewControllers[tag])
-                }
-                setViewControllers(newViewControllerOrder, animated: false)
-                print("loaded ViewControllers from UserDefaults")
-            }
+        for tag in tabBarOrder {
+            newViewControllerOrder.append(initialViewControllers[tag])
         }
+        setViewControllers(newViewControllerOrder, animated: false)
+        print("loaded ViewControllers from UserDefaults")
     }
     
     func tabBarController(_ tabBarController: UITabBarController, didEndCustomizing viewControllers: [UIViewController], changed: Bool) {
+        guard changed else { print("not changed"); return }
         var orderedTagItems = [Int]()
-        if changed {
-            for viewController in viewControllers {
-                let tag = viewController.tabBarItem.tag
-                orderedTagItems.append(tag)
-                
-            }
-            UserDefaults.standard.set(orderedTagItems, forKey: tabBarOrderKey)
-            print("changed")
-            print(orderedTagItems)
-        } else {
-            print("not changed")
+        for viewController in viewControllers {
+            orderedTagItems.append(viewController.tabBarItem.tag)
         }
+        UserDefaults.standard.set(orderedTagItems, forKey: tabBarOrderKey)
+        print("changed")
+        print(orderedTagItems)
     }
 
 }
