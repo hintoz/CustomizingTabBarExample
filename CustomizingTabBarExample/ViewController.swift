@@ -17,6 +17,10 @@ class ViewController: UIViewController {
         
         label.text = "Tag \(tabBarItem.tag)"
         navigationItem.title = TabBarItemTag.allCases[tabBarItem.tag].title
+        
+        guard AppDelegate.isDark else { return }
+        view.backgroundColor = UIColor.black
+        label.textColor = UIColor.white
     }
 
 }

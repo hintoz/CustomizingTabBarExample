@@ -13,7 +13,8 @@ class NavigationViewController: UINavigationController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        guard AppDelegate.isDark else { return }
+        navigationBar.barStyle = .black
     }
 
 }

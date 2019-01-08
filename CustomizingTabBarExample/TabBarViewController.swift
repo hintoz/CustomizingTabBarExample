@@ -17,12 +17,22 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
 
         self.delegate = self
         
-        configureVtewControllers()
+        configItewControllers()
         setUpTabBarItemTags()
         getSavedTabBarItemsOrder()
+        
+        guard AppDelegate.isDark else { return }
+        tabBar.tintColor = UIColor.green
+        tabBar.barTintColor = UIColor.black
     }
     
-    func configureVtewControllers() {
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        guard AppDelegate.isDark else { return }
+        configMoreViewController()
+    }
+    
+    func configItewControllers() {
         let storyBoard = UIStoryboard(name: "Main", bundle: nil)
         var conrollers = [NavigationViewController]()
         
@@ -36,6 +46,20 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
         self.viewControllers = conrollers
     }
     
+    func configMoreViewController() {
+        moreNavigationController.navigationBar.barStyle = .black
+        moreNavigationController.navigationBar.tintColor = UIColor.white
+        moreNavigationController.topViewController?.view.backgroundColor = UIColor.black
+        (moreNavigationController.topViewController?.view as? UITableView)?.separatorStyle = .none
+        (moreNavigationController.topViewController?.view as? UITableView)?.tintColor = UIColor.lightGray
+        if let cells = (moreNavigationController.topViewController?.view as? UITableView)?.visibleCells {
+            for cell in cells {
+                cell.backgroundColor = UIColor.clear
+                cell.textLabel?.textColor = UIColor.lightGray
+            }
+        }
+    }
+    
     func setUpTabBarItemTags() {
         guard let viewControllers = viewControllers else { return }
         for (index, view) in viewControllers.enumerated() {
@@ -46,6 +70,10 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
     func getSavedTabBarItemsOrder() {
         guard let initialViewControllers = viewControllers else { return }
         guard let tabBarOrder = UserDefaults.standard.object(forKey: tabBarOrderKey) as? [Int] else { return }
+        guard tabBarOrder.count == initialViewControllers.count else {
+            UserDefaults.standard.set(nil, forKey: tabBarOrderKey)
+            return
+        }
         var newViewControllerOrder = [UIViewController]()
         for tag in tabBarOrder {
             newViewControllerOrder.append(initialViewControllers[tag])
@@ -63,6 +91,14 @@ class TabBarViewController: UITabBarController, UITabBarControllerDelegate {
         UserDefaults.standard.set(orderedTagItems, forKey: tabBarOrderKey)
         print("changed")
         print(orderedTagItems)
+    }
+    
+    func tabBarController(_ tabBarController: UITabBarController, willBeginCustomizing viewControllers: [UIViewController]) {
+        guard AppDelegate.isDark else { return }
+        (tabBarController.view.subviews[1].subviews[1] as? UINavigationBar)?.barStyle = .black
+        (tabBarController.view.subviews[1].subviews[1] as? UINavigationBar)?.tintColor = UIColor.white
+        tabBarController.view.subviews[1].backgroundColor = UIColor.black
+        tabBarController.view.subviews[1].tintColor = UIColor.green
     }
 
 }
